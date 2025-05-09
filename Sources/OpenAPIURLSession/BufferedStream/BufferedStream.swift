@@ -129,14 +129,9 @@ import DequeModule
 ///     }
 ///
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-@usableFromInline
 internal struct BufferedStream<Element> {
-    @usableFromInline
     final class _Backing: Sendable {
-        @usableFromInline
         let storage: _BackPressuredStorage
-
-        @usableFromInline
         init(storage: _BackPressuredStorage) {
             self.storage = storage
         }
@@ -145,14 +140,10 @@ internal struct BufferedStream<Element> {
             self.storage.sequenceDeinitialized()
         }
     }
-
-    @usableFromInline
     enum _Implementation: Sendable {
         /// This is the implementation with backpressure based on the Source
         case backpressured(_Backing)
     }
-
-    @usableFromInline
     let implementation: _Implementation
 }
 
@@ -164,14 +155,9 @@ extension BufferedStream: AsyncSequence {
     /// concurrent contexts. It is a programmer error to invoke `next()` from a
     /// concurrent context that contends with another such call, which
     /// results in a call to `fatalError()`.
-    @usableFromInline
     internal struct Iterator: AsyncIteratorProtocol {
-        @usableFromInline
         final class _Backing {
-            @usableFromInline
             let storage: _BackPressuredStorage
-
-            @usableFromInline
             init(storage: _BackPressuredStorage) {
                 self.storage = storage
                 self.storage.iteratorInitialized()
@@ -181,17 +167,11 @@ extension BufferedStream: AsyncSequence {
                 self.storage.iteratorDeinitialized()
             }
         }
-
-        @usableFromInline
         enum _Implementation {
             /// This is the implementation with backpressure based on the Source
             case backpressured(_Backing)
         }
-
-        @usableFromInline
         var implementation: _Implementation
-
-        @usableFromInline
         init(implementation: _Implementation) {
             self.implementation = implementation
         }
@@ -209,7 +189,6 @@ extension BufferedStream: AsyncSequence {
         /// awaiting a value, the `BufferedStream` terminates. In this case,
         /// `next()` may return `nil` immediately, or else return `nil` on
         /// subsequent calls.
-        @inlinable
         internal mutating func next() async throws -> Element? {
             switch self.implementation {
             case .backpressured(let backing):
@@ -220,7 +199,6 @@ extension BufferedStream: AsyncSequence {
 
     /// Creates the asynchronous iterator that produces elements of this
     /// asynchronous sequence.
-    @inlinable
     internal func makeAsyncIterator() -> Iterator {
         switch self.implementation {
         case .backpressured(let backing):
@@ -231,28 +209,18 @@ extension BufferedStream: AsyncSequence {
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension BufferedStream: Sendable where Element: Sendable {}
-
-@usableFromInline
 internal struct _ManagedCriticalState<State>: @unchecked Sendable {
-    @usableFromInline
     let lock: LockedValueBox<State>
-
-    @usableFromInline
     internal init(_ initial: State) {
         self.lock = .init(initial)
     }
-
-    @inlinable
     internal func withCriticalRegion<R>(
         _ critical: (inout State) throws -> R
     ) rethrows -> R {
         try self.lock.withLockedValue(critical)
     }
 }
-
-@usableFromInline
 internal struct AlreadyFinishedError: Error {
-    @usableFromInline
     init() {}
 }
 
@@ -263,14 +231,11 @@ extension BufferedStream {
     /// Use this source to provide elements to the stream by calling one of the `write` methods, then terminate the stream normally
     /// by calling the `finish()` method. You can also use the source's `finish(throwing:)` method to terminate the stream by
     /// throwing an error.
-    @usableFromInline
     internal struct Source: Sendable {
         /// A strategy that handles the backpressure of the asynchronous stream.
-        @usableFromInline
         internal struct BackPressureStrategy: Sendable {
             /// When the high watermark is reached producers will be suspended. All producers will be resumed again once
             /// the low watermark is reached. The current watermark is the number of elements in the buffer.
-            @inlinable
             internal static func watermark(low: Int, high: Int) -> BackPressureStrategy {
                 BackPressureStrategy(
                     internalBackPressureStrategy: .watermark(.init(low: low, high: high))
@@ -288,27 +253,19 @@ extension BufferedStream {
                     internalBackPressureStrategy: .watermark(.init(low: low, high: high, waterLevelForElement: waterLevelForElement))
                 )
             }
-
-            @usableFromInline
             init(internalBackPressureStrategy: _InternalBackPressureStrategy) {
                 self._internalBackPressureStrategy = internalBackPressureStrategy
             }
-
-            @usableFromInline
             let _internalBackPressureStrategy: _InternalBackPressureStrategy
         }
 
         /// A type that indicates the result of writing elements to the source.
         @frozen
-        @usableFromInline
         internal enum WriteResult: Sendable {
             /// A token that is returned when the asynchronous stream's backpressure strategy indicated that production should
             /// be suspended. Use this token to enqueue a callback by  calling the ``enqueueCallback(_:)`` method.
-            @usableFromInline
             internal struct CallbackToken: Sendable {
-                @usableFromInline
                 let id: UInt
-                @usableFromInline
                 init(id: UInt) {
                     self.id = id
                 }
@@ -324,12 +281,8 @@ extension BufferedStream {
         }
 
         /// Backing class for the source used to hook a deinit.
-        @usableFromInline
         final class _Backing: Sendable {
-            @usableFromInline
             let storage: _BackPressuredStorage
-
-            @usableFromInline
             init(storage: _BackPressuredStorage) {
                 self.storage = storage
             }
@@ -346,7 +299,6 @@ extension BufferedStream {
         /// - An iterator was created and deinited
         /// - After ``finish(throwing:)`` was called and all elements have been consumed
         /// - The consuming task got cancelled
-        @inlinable
         internal var onTermination: (@Sendable () -> Void)? {
             set {
                 self._backing.storage.onTermination = newValue
@@ -355,11 +307,7 @@ extension BufferedStream {
                 self._backing.storage.onTermination
             }
         }
-
-        @usableFromInline
         var _backing: _Backing
-
-        @usableFromInline
         internal init(storage: _BackPressuredStorage) {
             self._backing = .init(storage: storage)
         }
@@ -372,7 +320,6 @@ extension BufferedStream {
         ///
         /// - Parameter sequence: The elements to write to the asynchronous stream.
         /// - Returns: The result that indicates if more elements should be produced at this time.
-        @inlinable
         internal func write<S>(contentsOf sequence: S) throws -> WriteResult
         where Element == S.Element, S: Sequence {
             try self._backing.storage.write(contentsOf: sequence)
@@ -386,7 +333,6 @@ extension BufferedStream {
         ///
         /// - Parameter element: The element to write to the asynchronous stream.
         /// - Returns: The result that indicates if more elements should be produced at this time.
-        @inlinable
         internal func write(_ element: Element) throws -> WriteResult {
             try self._backing.storage.write(contentsOf: CollectionOfOne(element))
         }
@@ -400,7 +346,6 @@ extension BufferedStream {
         /// - Parameters:
         ///   - callbackToken: The callback token.
         ///   - onProduceMore: The callback which gets invoked once more elements should be produced.
-        @inlinable
         internal func enqueueCallback(
             callbackToken: WriteResult.CallbackToken,
             onProduceMore: @escaping @Sendable (Result<Void, any Error>) -> Void
@@ -419,7 +364,6 @@ extension BufferedStream {
         /// will mark the passed `callbackToken` as cancelled.
         ///
         /// - Parameter callbackToken: The callback token.
-        @inlinable
         internal func cancelCallback(callbackToken: WriteResult.CallbackToken) {
             self._backing.storage.cancelProducer(callbackToken: callbackToken)
         }
@@ -434,7 +378,6 @@ extension BufferedStream {
         ///   - sequence: The elements to write to the asynchronous stream.
         ///   - onProduceMore: The callback which gets invoked once more elements should be produced. This callback might be
         ///   invoked during the call to ``write(contentsOf:onProduceMore:)``.
-        @inlinable
         internal func write<S>(
             contentsOf sequence: S,
             onProduceMore: @escaping @Sendable (Result<Void, any Error>) -> Void
@@ -464,7 +407,6 @@ extension BufferedStream {
         ///   - sequence: The element to write to the asynchronous stream.
         ///   - onProduceMore: The callback which gets invoked once more elements should be produced. This callback might be
         ///   invoked during the call to ``write(_:onProduceMore:)``.
-        @inlinable
         internal func write(
             _ element: Element,
             onProduceMore: @escaping @Sendable (Result<Void, any Error>) -> Void
@@ -482,7 +424,6 @@ extension BufferedStream {
         ///
         /// - Parameters:
         ///   - sequence: The elements to write to the asynchronous stream.
-        @inlinable
         internal func write<S>(contentsOf sequence: S) async throws
         where Element == S.Element, S: Sequence {
             let writeResult = try { try self.write(contentsOf: sequence) }()
@@ -522,7 +463,6 @@ extension BufferedStream {
         ///
         /// - Parameters:
         ///   - sequence: The element to write to the asynchronous stream.
-        @inlinable
         internal func write(_ element: Element) async throws {
             try await self.write(contentsOf: CollectionOfOne(element))
         }
@@ -535,7 +475,6 @@ extension BufferedStream {
         ///
         /// - Parameters:
         ///   - sequence: The elements to write to the asynchronous stream.
-        @inlinable
         internal func write<S>(contentsOf sequence: S) async throws
         where Element == S.Element, S: AsyncSequence {
             for try await element in sequence {
@@ -552,7 +491,6 @@ extension BufferedStream {
         ///
         /// - Parameters:
         ///   - error: The error to throw, or `nil`, to finish normally.
-        @inlinable
         internal func finish(throwing error: (any Error)?) {
             self._backing.storage.finish(error)
         }
@@ -566,7 +504,6 @@ extension BufferedStream {
     ///   - backPressureStrategy: The backpressure strategy that the stream should use.
     /// - Returns: A tuple containing the stream and its source. The source should be passed to the
     ///   producer while the stream should be passed to the consumer.
-    @inlinable
     internal static func makeStream(
         of elementType: Element.Type = Element.self,
         throwing failureType: any Error.Type = (any Error).self,
@@ -579,8 +516,6 @@ extension BufferedStream {
 
         return (.init(storage: storage), source)
     }
-
-    @usableFromInline
     init(storage: _BackPressuredStorage) {
         self.implementation = .backpressured(.init(storage: storage))
     }
@@ -588,19 +523,14 @@ extension BufferedStream {
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension BufferedStream {
-    @usableFromInline
     struct _WatermarkBackPressureStrategy: Sendable {
         /// The low watermark where demand should start.
-        @usableFromInline
         let _low: Int
         /// The high watermark where demand should be stopped.
-        @usableFromInline
         let _high: Int
         /// The current watermark.
-        @usableFromInline
         private(set) var _current: Int
         /// Function to compute the contribution to the water level for a given element.
-        @usableFromInline
         let _waterLevelForElement: (@Sendable (Element) -> Int)?
 
         /// Initializes a new ``_WatermarkBackPressureStrategy``.
@@ -609,7 +539,6 @@ extension BufferedStream {
         ///   - low: The low watermark where demand should start.
         ///   - high: The high watermark where demand should be stopped.
         ///   - waterLevelForElement: Function to compute the contribution to the water level for a given element.
-        @usableFromInline
         init(low: Int, high: Int, waterLevelForElement: (@Sendable (Element) -> Int)? = nil) {
             precondition(low <= high)
             self._low = low
@@ -617,8 +546,6 @@ extension BufferedStream {
             self._current = 0
             self._waterLevelForElement = waterLevelForElement
         }
-
-        @usableFromInline
         mutating func didYield(elements: Deque<Element>.SubSequence) -> Bool {
             if let waterLevelForElement = self._waterLevelForElement {
                 self._current += elements.reduce(0) { $0 + waterLevelForElement($1) }
@@ -629,8 +556,6 @@ extension BufferedStream {
             // We are demanding more until we reach the high watermark
             return self._current < self._high
         }
-
-        @usableFromInline
         mutating func didConsume(elements: Deque<Element>.SubSequence) -> Bool {
             if let waterLevelForElement = self._waterLevelForElement {
                 self._current -= elements.reduce(0) { $0 + waterLevelForElement($1) }
@@ -641,8 +566,6 @@ extension BufferedStream {
             // We start demanding again once we are below the low watermark
             return self._current < self._low
         }
-
-        @usableFromInline
         mutating func didConsume(element: Element) -> Bool {
             if let waterLevelForElement = self._waterLevelForElement {
                 self._current -= waterLevelForElement(element)
@@ -654,12 +577,8 @@ extension BufferedStream {
             return self._current < self._low
         }
     }
-
-    @usableFromInline
     enum _InternalBackPressureStrategy: Sendable {
         case watermark(_WatermarkBackPressureStrategy)
-
-        @inlinable
         mutating func didYield(elements: Deque<Element>.SubSequence) -> Bool {
             switch self {
             case .watermark(var strategy):
@@ -668,8 +587,6 @@ extension BufferedStream {
                 return result
             }
         }
-
-        @usableFromInline
         mutating func didConsume(elements: Deque<Element>.SubSequence) -> Bool {
             switch self {
             case .watermark(var strategy):
@@ -678,8 +595,6 @@ extension BufferedStream {
                 return result
             }
         }
-
-        @usableFromInline
         mutating func didConsume(element: Element) -> Bool {
             switch self {
             case .watermark(var strategy):
@@ -694,13 +609,9 @@ extension BufferedStream {
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension BufferedStream {
     // We are unchecked Sendable since we are protecting our state with a lock.
-    @usableFromInline
     final class _BackPressuredStorage: Sendable {
         /// The state machine
-        @usableFromInline
         let _stateMachine: _ManagedCriticalState<_StateMachine>
-
-        @usableFromInline
         var onTermination: (@Sendable () -> Void)? {
             set {
                 self._stateMachine.withCriticalRegion {
@@ -713,15 +624,11 @@ extension BufferedStream {
                 }
             }
         }
-
-        @usableFromInline
         init(
             backPressureStrategy: _InternalBackPressureStrategy
         ) {
             self._stateMachine = .init(.init(backPressureStrategy: backPressureStrategy))
         }
-
-        @inlinable
         func sequenceDeinitialized() {
             let action = self._stateMachine.withCriticalRegion {
                 $0.sequenceDeinitialized()
@@ -741,15 +648,11 @@ extension BufferedStream {
                 break
             }
         }
-
-        @inlinable
         func iteratorInitialized() {
             self._stateMachine.withCriticalRegion {
                 $0.iteratorInitialized()
             }
         }
-
-        @inlinable
         func iteratorDeinitialized() {
             let action = self._stateMachine.withCriticalRegion {
                 $0.iteratorDeinitialized()
@@ -769,8 +672,6 @@ extension BufferedStream {
                 break
             }
         }
-
-        @inlinable
         func sourceDeinitialized() {
             let action = self._stateMachine.withCriticalRegion {
                 $0.sourceDeinitialized()
@@ -800,8 +701,6 @@ extension BufferedStream {
                 break
             }
         }
-
-        @inlinable
         func write(
             contentsOf sequence: some Sequence<Element>
         ) throws -> Source.WriteResult {
@@ -828,8 +727,6 @@ extension BufferedStream {
                 throw AlreadyFinishedError()
             }
         }
-
-        @inlinable
         func enqueueProducer(
             callbackToken: Source.WriteResult.CallbackToken,
             onProduceMore: @escaping @Sendable (Result<Void, any Error>) -> Void
@@ -849,8 +746,6 @@ extension BufferedStream {
                 break
             }
         }
-
-        @inlinable
         func cancelProducer(callbackToken: Source.WriteResult.CallbackToken) {
             let action = self._stateMachine.withCriticalRegion {
                 $0.cancelProducer(callbackToken: callbackToken)
@@ -864,8 +759,6 @@ extension BufferedStream {
                 break
             }
         }
-
-        @inlinable
         func finish(_ failure: (any Error)?) {
             let action = self._stateMachine.withCriticalRegion {
                 $0.finish(failure)
@@ -898,8 +791,6 @@ extension BufferedStream {
                 break
             }
         }
-
-        @inlinable
         func next() async throws -> Element? {
             let action = self._stateMachine.withCriticalRegion {
                 $0.next()
@@ -933,8 +824,6 @@ extension BufferedStream {
                 return try await self.suspendNext()
             }
         }
-
-        @inlinable
         func suspendNext() async throws -> Element? {
             return try await withTaskCancellationHandler {
                 return try await withCheckedThrowingContinuation { continuation in
@@ -1010,23 +899,15 @@ extension BufferedStream {
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension BufferedStream {
     /// The state machine of the backpressured async stream.
-    @usableFromInline
     struct _StateMachine {
-        @usableFromInline
         enum _State {
-            @usableFromInline
             struct Initial {
                 /// The backpressure strategy.
-                @usableFromInline
                 var backPressureStrategy: _InternalBackPressureStrategy
                 /// Indicates if the iterator was initialized.
-                @usableFromInline
                 var iteratorInitialized: Bool
                 /// The onTermination callback.
-                @usableFromInline
                 var onTermination: (@Sendable () -> Void)?
-
-                @usableFromInline
                 init(
                     backPressureStrategy: _InternalBackPressureStrategy,
                     iteratorInitialized: Bool,
@@ -1037,35 +918,23 @@ extension BufferedStream {
                     self.onTermination = onTermination
                 }
             }
-
-            @usableFromInline
             struct Streaming {
                 /// The backpressure strategy.
-                @usableFromInline
                 var backPressureStrategy: _InternalBackPressureStrategy
                 /// Indicates if the iterator was initialized.
-                @usableFromInline
                 var iteratorInitialized: Bool
                 /// The onTermination callback.
-                @usableFromInline
                 var onTermination: (@Sendable () -> Void)?
                 /// The buffer of elements.
-                @usableFromInline
                 var buffer: Deque<Element>
                 /// The optional consumer continuation.
-                @usableFromInline
                 var consumerContinuation: CheckedContinuation<Element?, any Error>?
                 /// The producer continuations.
-                @usableFromInline
                 var producerContinuations: Deque<(UInt, (Result<Void, any Error>) -> Void)>
                 /// The producers that have been cancelled.
-                @usableFromInline
                 var cancelledAsyncProducers: Deque<UInt>
                 /// Indicates if we currently have outstanding demand.
-                @usableFromInline
                 var hasOutstandingDemand: Bool
-
-                @usableFromInline
                 init(
                     backPressureStrategy: _InternalBackPressureStrategy,
                     iteratorInitialized: Bool,
@@ -1086,23 +955,15 @@ extension BufferedStream {
                     self.hasOutstandingDemand = hasOutstandingDemand
                 }
             }
-
-            @usableFromInline
             struct SourceFinished {
                 /// Indicates if the iterator was initialized.
-                @usableFromInline
                 var iteratorInitialized: Bool
                 /// The buffer of elements.
-                @usableFromInline
                 var buffer: Deque<Element>
                 /// The failure that should be thrown after the last element has been consumed.
-                @usableFromInline
                 var failure: (any Error)?
                 /// The onTermination callback.
-                @usableFromInline
                 var onTermination: (@Sendable () -> Void)?
-
-                @usableFromInline
                 init(
                     iteratorInitialized: Bool,
                     buffer: Deque<Element>,
@@ -1132,14 +993,10 @@ extension BufferedStream {
         }
 
         /// The state machine's current state.
-        @usableFromInline
         var _state: _State
 
         // The ID used for the next CallbackToken.
-        @usableFromInline
         var nextCallbackTokenID: UInt = 0
-
-        @inlinable
         var _onTermination: (@Sendable () -> Void)? {
             set {
                 switch self._state {
@@ -1188,7 +1045,6 @@ extension BufferedStream {
         /// it is a customizable extension of the state machine.
         ///
         /// - Parameter backPressureStrategy: The back-pressure strategy.
-        @usableFromInline
         init(
             backPressureStrategy: _InternalBackPressureStrategy
         ) {
@@ -1201,7 +1057,6 @@ extension BufferedStream {
         }
 
         /// Generates the next callback token.
-        @inlinable
         mutating func nextCallbackToken() -> Source.WriteResult.CallbackToken {
             let id = self.nextCallbackTokenID
             self.nextCallbackTokenID += 1
@@ -1209,7 +1064,6 @@ extension BufferedStream {
         }
 
         /// Actions returned by `sequenceDeinitialized()`.
-        @usableFromInline
         enum SequenceDeinitializedAction {
             /// Indicates that `onTermination` should be called.
             case callOnTermination((@Sendable () -> Void)?)
@@ -1219,8 +1073,6 @@ extension BufferedStream {
                 (@Sendable () -> Void)?
             )
         }
-
-        @inlinable
         mutating func sequenceDeinitialized() -> SequenceDeinitializedAction? {
             switch self._state {
             case .initial(let initial):
@@ -1271,8 +1123,6 @@ extension BufferedStream {
                 fatalError("AsyncStream internal inconsistency")
             }
         }
-
-        @inlinable
         mutating func iteratorInitialized() {
             switch self._state {
             case .initial(var initial):
@@ -1321,7 +1171,6 @@ extension BufferedStream {
         }
 
         /// Actions returned by `iteratorDeinitialized()`.
-        @usableFromInline
         enum IteratorDeinitializedAction {
             /// Indicates that `onTermination` should be called.
             case callOnTermination((@Sendable () -> Void)?)
@@ -1331,8 +1180,6 @@ extension BufferedStream {
                 (@Sendable () -> Void)?
             )
         }
-
-        @inlinable
         mutating func iteratorDeinitialized() -> IteratorDeinitializedAction? {
             switch self._state {
             case .initial(let initial):
@@ -1383,7 +1230,6 @@ extension BufferedStream {
         }
 
         /// Actions returned by `sourceDeinitialized()`.
-        @usableFromInline
         enum SourceDeinitializedAction {
             /// Indicates that `onTermination` should be called.
             case callOnTermination((() -> Void)?)
@@ -1396,8 +1242,6 @@ extension BufferedStream {
             /// Indicates that all producers should be failed.
             case failProducers([(Result<Void, any Error>) -> Void])
         }
-
-        @inlinable
         mutating func sourceDeinitialized() -> SourceDeinitializedAction? {
             switch self._state {
             case .initial(let initial):
@@ -1443,7 +1287,6 @@ extension BufferedStream {
         }
 
         /// Actions returned by `write()`.
-        @usableFromInline
         enum WriteAction {
             /// Indicates that the producer should be notified to produce more.
             case returnProduceMore
@@ -1464,8 +1307,6 @@ extension BufferedStream {
             )
             /// Indicates that the producer has been finished.
             case throwFinishedError
-
-            @inlinable
             init(
                 callbackToken: Source.WriteResult.CallbackToken?,
                 continuationAndElement: (CheckedContinuation<Element?, any Error>, Element)? = nil
@@ -1492,8 +1333,6 @@ extension BufferedStream {
                 }
             }
         }
-
-        @inlinable
         mutating func write(_ sequence: some Sequence<Element>) -> WriteAction {
             switch self._state {
             case .initial(var initial):
@@ -1563,15 +1402,12 @@ extension BufferedStream {
         }
 
         /// Actions returned by `enqueueProducer()`.
-        @usableFromInline
         enum EnqueueProducerAction {
             /// Indicates that the producer should be notified to produce more.
             case resumeProducer((Result<Void, any Error>) -> Void)
             /// Indicates that the producer should be notified about an error.
             case resumeProducerWithError((Result<Void, any Error>) -> Void, any Error)
         }
-
-        @inlinable
         mutating func enqueueProducer(
             callbackToken: Source.WriteResult.CallbackToken,
             onProduceMore: @Sendable @escaping (Result<Void, any Error>) -> Void
@@ -1613,13 +1449,10 @@ extension BufferedStream {
         }
 
         /// Actions returned by `cancelProducer()`.
-        @usableFromInline
         enum CancelProducerAction {
             /// Indicates that the producer should be notified about cancellation.
             case resumeProducerWithCancellationError((Result<Void, any Error>) -> Void)
         }
-
-        @inlinable
         mutating func cancelProducer(
             callbackToken: Source.WriteResult.CallbackToken
         ) -> CancelProducerAction? {
@@ -1659,7 +1492,6 @@ extension BufferedStream {
         }
 
         /// Actions returned by `finish()`.
-        @usableFromInline
         enum FinishAction {
             /// Indicates that `onTermination` should be called.
             case callOnTermination((() -> Void)?)
@@ -1675,8 +1507,6 @@ extension BufferedStream {
                 producerContinuations: [(Result<Void, any Error>) -> Void]
             )
         }
-
-        @inlinable
         mutating func finish(_ failure: (any Error)?) -> FinishAction? {
             switch self._state {
             case .initial(let initial):
@@ -1736,7 +1566,6 @@ extension BufferedStream {
         }
 
         /// Actions returned by `next()`.
-        @usableFromInline
         enum NextAction {
             /// Indicates that the element should be returned to the caller.
             case returnElement(Element)
@@ -1749,8 +1578,6 @@ extension BufferedStream {
             /// Indicates that the `Task` of the caller should be suspended.
             case suspendTask
         }
-
-        @inlinable
         mutating func next() -> NextAction {
             switch self._state {
             case .initial(let initial):
@@ -1829,7 +1656,6 @@ extension BufferedStream {
         }
 
         /// Actions returned by `suspendNext()`.
-        @usableFromInline
         enum SuspendNextAction {
             /// Indicates that the consumer should be resumed.
             case resumeConsumerWithElement(CheckedContinuation<Element?, any Error>, Element)
@@ -1848,8 +1674,6 @@ extension BufferedStream {
             /// Indicates that the consumer should be resumed with `nil`.
             case resumeConsumerWithNil(CheckedContinuation<Element?, any Error>)
         }
-
-        @inlinable
         mutating func suspendNext(
             continuation: CheckedContinuation<Element?, any Error>
         ) -> SuspendNextAction? {
@@ -1925,7 +1749,6 @@ extension BufferedStream {
         }
 
         /// Actions returned by `cancelNext()`.
-        @usableFromInline
         enum CancelNextAction {
             /// Indicates that the continuation should be resumed with a cancellation error, the producers should be finished and call onTermination.
             case resumeConsumerWithCancellationErrorAndCallOnTermination(
@@ -1935,8 +1758,6 @@ extension BufferedStream {
             /// Indicates that the producers should be finished and call onTermination.
             case failProducersAndCallOnTermination([(Result<Void, any Error>) -> Void], (() -> Void)?)
         }
-
-        @inlinable
         mutating func cancelNext() -> CancelNextAction? {
             switch self._state {
             case .initial:
