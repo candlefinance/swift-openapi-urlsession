@@ -36,7 +36,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.8.2"),
         .package(url: "https://github.com/apple/swift-http-types", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-collections", from: "1.0.0"),
+        .package(url: "https://github.com/candlefinance/swift-collections", exact: "1.1.4-candle"),
     ],
     targets: [
         .target(
@@ -58,7 +58,7 @@ let package = Package(
 
 #if !os(Windows) // NIO not yet supported on Windows
 // Test-only dependencies.
-package.dependencies += [.package(url: "https://github.com/apple/swift-nio", from: "2.62.0")]
+package.dependencies += [.package(url: "https://github.com/candlefinance/swift-nio", exact: "2.82.1-candle")]
 package.targets.forEach { target in
     if target.name == "OpenAPIURLSessionTests" {
         target.dependencies += [.product(name: "NIOTestUtils", package: "swift-nio")]
