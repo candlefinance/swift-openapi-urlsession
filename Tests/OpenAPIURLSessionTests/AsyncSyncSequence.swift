@@ -27,7 +27,6 @@ extension Sequence {
     /// An asynchronous sequence containing the same elements as this sequence,
     /// but on which operations, such as `map` and `filter`, are
     /// implemented asynchronously.
-    @inlinable
     var async: AsyncSyncSequence<Self> {
         AsyncSyncSequence(self)
     }
@@ -47,15 +46,10 @@ public struct AsyncSyncSequence<Base: Sequence>: AsyncSequence {
 
     @frozen
     public struct Iterator: AsyncIteratorProtocol {
-        @usableFromInline
         var iterator: Base.Iterator?
-
-        @usableFromInline
         init(_ iterator: Base.Iterator) {
             self.iterator = iterator
         }
-
-        @inlinable
         public mutating func next() async -> Base.Element? {
             if !Task.isCancelled, let value = iterator?.next() {
                 return value
@@ -65,16 +59,10 @@ public struct AsyncSyncSequence<Base: Sequence>: AsyncSequence {
             }
         }
     }
-
-    @usableFromInline
     let base: Base
-
-    @usableFromInline
     init(_ base: Base) {
         self.base = base
     }
-
-    @inlinable
     public func makeAsyncIterator() -> Iterator {
         Iterator(base.makeIterator())
     }
