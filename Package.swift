@@ -43,7 +43,13 @@ let package = Package(
             name: "OpenAPIURLSession",
             dependencies: [
                 .product(name: "DequeModule", package: "swift-collections"),
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(
+                    name: "OpenAPIRuntime", 
+                    package: "swift-openapi-runtime", 
+                    moduleAliases: [
+                        "OpenAPIRuntime": "CandleOpenAPIRuntime"
+                    ]
+                ),
                 .product(name: "HTTPTypes", package: "swift-http-types"),
             ],
             swiftSettings: swiftSettings
