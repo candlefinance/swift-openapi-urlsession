@@ -47,7 +47,7 @@ let package = Package(
                     name: "OpenAPIRuntime", 
                     package: "swift-openapi-runtime", 
                     moduleAliases: [
-                        "OpenAPIRuntime": "CandleOpenAPIRuntime"
+                        "OpenAPIRuntime": "CandleOpenAPIURLSessionOpenAPIRuntime"
                     ]
                 ),
                 .product(name: "HTTPTypes", package: "swift-http-types"),
