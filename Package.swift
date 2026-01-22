@@ -34,17 +34,17 @@ let package = Package(
     platforms: [.macOS(.v10_15), .macCatalyst(.v13), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     products: [.library(name: "OpenAPIURLSession", targets: ["OpenAPIURLSession"])],
     dependencies: [
-        .package(url: "https://github.com/candlefinance/swift-openapi-runtime", branch: "fix-candle-1.8.2"),
-        .package(url: "https://github.com/candlefinance/swift-http-types", branch: "fix-candle-1.3.1"),
-        .package(url: "https://github.com/candlefinance/swift-collections", branch: "fix-candle-1.1.4"),
+        .package(url: "https://github.com/candlefinance/swift-openapi-runtime", name: "candle-swift-openapi-runtime", branch: "fix-candle-1.8.2"),
+        .package(url: "https://github.com/candlefinance/swift-http-types", name: "candle-swift-http-types", branch: "fix-candle-1.3.1"),
+        .package(url: "https://github.com/candlefinance/swift-collections", name: "candle-swift-collections", branch: "fix-candle-1.1.4"),
     ],
     targets: [
         .target(
             name: "OpenAPIURLSession",
             dependencies: [
-                .product(name: "CandleDequeModule", package: "swift-collections"),
-                .product(name: "CandleOpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "CandleHTTPTypes", package: "swift-http-types"),
+                .product(name: "CandleDequeModule", package: "candle-swift-collections"),
+                .product(name: "CandleOpenAPIRuntime", package: "candle-swift-openapi-runtime"),
+                .product(name: "CandleHTTPTypes", package: "candle-swift-http-types"),
             ],
             swiftSettings: swiftSettings
         ),
@@ -58,10 +58,10 @@ let package = Package(
 
 #if !os(Windows) // NIO not yet supported on Windows
 // Test-only dependencies.
-package.dependencies += [.package(url: "https://github.com/candlefinance/swift-nio", branch: "fix-candle-2.82.1")]
+package.dependencies += [.package(url: "https://github.com/candlefinance/swift-nio", name: "candle-swift-nio", branch: "fix-candle-2.82.1")]
 package.targets.forEach { target in
     if target.name == "OpenAPIURLSessionTests" {
-        target.dependencies += [.product(name: "NIOTestUtils", package: "swift-nio")]
+        target.dependencies += [.product(name: "NIOTestUtils", package: "candle-swift-nio")]
     }
 }
 #endif
