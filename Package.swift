@@ -48,22 +48,12 @@ let package = Package(
             ],
             swiftSettings: swiftSettings
         ),
-        .testTarget(
-            name: "OpenAPIURLSessionTests",
-            dependencies: ["OpenAPIURLSession"],
-            swiftSettings: swiftSettings
-        ),
     ]
 )
 
 #if !os(Windows) // NIO not yet supported on Windows
 // Test-only dependencies.
 package.dependencies += [.package(name: "candle-swift-nio", url: "https://github.com/candlefinance/candle-swift-nio", branch: "fix-candle-2.82.1")]
-package.targets.forEach { target in
-    if target.name == "OpenAPIURLSessionTests" {
-        target.dependencies += [.product(name: "NIOTestUtils", package: "candle-swift-nio")]
-    }
-}
 #endif
 
 // ---    STANDARD CROSS-REPO SETTINGS DO NOT EDIT   --- //
