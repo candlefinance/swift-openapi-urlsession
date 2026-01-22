@@ -11,8 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIRuntime
-import HTTPTypes
+import CandleOpenAPIRuntime
+import CandleHTTPTypes
 #if canImport(Darwin)
 import Foundation
 #else
