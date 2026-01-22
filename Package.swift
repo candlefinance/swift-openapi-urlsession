@@ -34,9 +34,9 @@ let package = Package(
     platforms: [.macOS(.v10_15), .macCatalyst(.v13), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     products: [.library(name: "OpenAPIURLSession", targets: ["OpenAPIURLSession"])],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.8.2"),
-        .package(url: "https://github.com/apple/swift-http-types", from: "1.0.0"),
-        .package(url: "https://github.com/candlefinance/swift-collections", exact: "1.1.4-candle"),
+        .package(url: "https://github.com/candlefinance/swift-openapi-runtime", branch: "fix-candle-1.8.2"),
+        .package(url: "https://github.com/candlefinance/swift-http-types", branch: "fix-candle-1.3.1"),
+        .package(url: "https://github.com/candlefinance/swift-collections", branch: "fix-candle-1.1.4"),
     ],
     targets: [
         .target(
@@ -58,7 +58,7 @@ let package = Package(
 
 #if !os(Windows) // NIO not yet supported on Windows
 // Test-only dependencies.
-package.dependencies += [.package(url: "https://github.com/candlefinance/swift-nio", exact: "2.82.1-candle")]
+package.dependencies += [.package(url: "https://github.com/candlefinance/swift-nio", branch: "fix-candle-2.82.1")]
 package.targets.forEach { target in
     if target.name == "OpenAPIURLSessionTests" {
         target.dependencies += [.product(name: "NIOTestUtils", package: "swift-nio")]
