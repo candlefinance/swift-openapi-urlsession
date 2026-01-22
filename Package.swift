@@ -42,9 +42,9 @@ let package = Package(
         .target(
             name: "OpenAPIURLSession",
             dependencies: [
-                .product(name: "CandleDequeModule", package: "swift-collections"),
-                .product(name: "CandleOpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "CandleHTTPTypes", package: "swift-http-types"),
+                .product(name: "CandleDequeModule",package: "candle-swift-collections"),
+                .product(name: "CandleOpenAPIRuntime",package: "candle-swift-openapi-runtime"),
+                .product(name: "CandleHTTPTypes",package: "candle-swift-http-types"),
             ],
             swiftSettings: swiftSettings
         ),
