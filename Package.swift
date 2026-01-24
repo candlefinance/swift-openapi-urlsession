@@ -32,7 +32,7 @@ if ProcessInfo.processInfo.environment["SWIFT_OPENAPI_STRICT_CONCURRENCY"].flatM
 let package = Package(
     name: "swift-openapi-urlsession",
     platforms: [.macOS(.v10_15), .macCatalyst(.v13), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
-    products: [.library(name: "OpenAPIURLSession", targets: ["OpenAPIURLSession"])],
+    products: [.library(name: "CandleOpenAPIURLSession", targets: ["CandleOpenAPIURLSession"])],
     dependencies: [
         .package(url: "https://github.com/candlefinance/candle-swift-openapi-runtime", branch: "fix-candle-1.8.2"),
         .package(url: "https://github.com/candlefinance/candle-swift-http-types", branch: "fix-candle-1.3.1"),
@@ -40,7 +40,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "OpenAPIURLSession",
+            name: "CandleOpenAPIURLSession",
             dependencies: [
                 .product(name: "CandleDequeModule",package: "candle-swift-collections"),
                 .product(name: "CandleOpenAPIRuntime",package: "candle-swift-openapi-runtime"),
