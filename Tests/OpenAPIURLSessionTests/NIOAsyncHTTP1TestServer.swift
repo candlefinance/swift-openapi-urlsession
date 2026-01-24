@@ -15,7 +15,7 @@
 import NIOCore
 import NIOPosix
 import NIOHTTP1
-@testable import OpenAPIURLSession
+@testable import CandleOpenAPIURLSession
 
 final class AsyncTestHTTP1Server {
 

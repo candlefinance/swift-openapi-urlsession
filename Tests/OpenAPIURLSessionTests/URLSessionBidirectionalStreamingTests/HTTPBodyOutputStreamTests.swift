@@ -15,11 +15,11 @@
 
 import OpenAPIRuntime
 import XCTest
-@testable import OpenAPIURLSession
+@testable import CandleOpenAPIURLSession
 
 // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 class HTTPBodyOutputStreamBridgeTests: XCTestCase {
-    static override func setUp() { OpenAPIURLSession.debugLoggingEnabled = false }
+    static override func setUp() { CandleOpenAPIURLSession.debugLoggingEnabled = false }
 
     func testHTTPBodyOutputStreamInputOutput() async throws {
         let chunkSize = 71

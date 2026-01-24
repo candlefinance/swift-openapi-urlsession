@@ -26,7 +26,7 @@
 
 import XCTest
 
-@testable import OpenAPIURLSession
+@testable import CandleOpenAPIURLSession
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 final class BufferedStreamTests: XCTestCase {

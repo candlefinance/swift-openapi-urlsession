@@ -19,11 +19,11 @@ import NIO
 import NIOHTTP1
 import OpenAPIRuntime
 import XCTest
-@testable import OpenAPIURLSession
+@testable import CandleOpenAPIURLSession
 
 @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *) class URLSessionBidirectionalStreamingTests: XCTestCase {
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    static override func setUp() { OpenAPIURLSession.debugLoggingEnabled = false }
+    static override func setUp() { CandleOpenAPIURLSession.debugLoggingEnabled = false }
 
     func testBidirectionalEcho_PerChunkRatchet_1BChunk_1Chunks_1BUploadBuffer_1BDownloadWatermark() async throws {
         try await testBidirectionalEchoPerChunkRatchet(

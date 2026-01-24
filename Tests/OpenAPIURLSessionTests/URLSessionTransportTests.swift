@@ -22,11 +22,11 @@ import NIOHTTP1
 #endif
 import OpenAPIRuntime
 import XCTest
-@testable import OpenAPIURLSession
+@testable import CandleOpenAPIURLSession
 
 // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 class URLSessionTransportConverterTests: XCTestCase {
-    static override func setUp() { OpenAPIURLSession.debugLoggingEnabled = false }
+    static override func setUp() { CandleOpenAPIURLSession.debugLoggingEnabled = false }
 
     func testRequestConversion() async throws {
         var request = HTTPRequest(
@@ -66,7 +66,7 @@ class URLSessionTransportConverterTests: XCTestCase {
 class URLSessionTransportBufferedTests: XCTestCase {
     var transport: URLSessionTransport!
 
-    static override func setUp() { OpenAPIURLSession.debugLoggingEnabled = false }
+    static override func setUp() { CandleOpenAPIURLSession.debugLoggingEnabled = false }
 
     override func setUp() async throws {
         transport = URLSessionTransport(configuration: .init(implementation: .buffering))
@@ -99,7 +99,7 @@ class URLSessionTransportBufferedTests: XCTestCase {
 class URLSessionTransportStreamingTests: XCTestCase {
     var transport: URLSessionTransport!
 
-    static override func setUp() { OpenAPIURLSession.debugLoggingEnabled = false }
+    static override func setUp() { CandleOpenAPIURLSession.debugLoggingEnabled = false }
 
     override func setUpWithError() throws {
         try XCTSkipUnless(URLSessionTransport.Configuration.Implementation.platformSupportsStreaming)
@@ -327,7 +327,7 @@ class URLSessionTransportDebugLoggingTests: XCTestCase {
             expectation.fulfill()
             return "message"
         }
-        OpenAPIURLSession.debugLoggingEnabled = true
+        CandleOpenAPIURLSession.debugLoggingEnabled = true
         debug(message())
         wait(for: [expectation], timeout: 0)
     }
@@ -339,7 +339,7 @@ class URLSessionTransportDebugLoggingTests: XCTestCase {
             expectation.fulfill()
             return "message"
         }
-        OpenAPIURLSession.debugLoggingEnabled = false
+        CandleOpenAPIURLSession.debugLoggingEnabled = false
         debug(message())
         wait(for: [expectation], timeout: 0)
     }

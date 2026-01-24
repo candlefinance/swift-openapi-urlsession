@@ -14,7 +14,7 @@
 #if canImport(Darwin)
 
 import Foundation
-@testable import OpenAPIURLSession
+@testable import CandleOpenAPIURLSession
 
 /// Reads one byte at a time from the stream, regardless of how many bytes are available.
 ///

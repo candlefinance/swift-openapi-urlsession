@@ -19,7 +19,7 @@ import NIO
 import NIOHTTP1
 import OpenAPIRuntime
 import XCTest
-@testable import OpenAPIURLSession
+@testable import CandleOpenAPIURLSession
 
 enum CancellationPoint: CaseIterable {
     case beforeSendingHead
