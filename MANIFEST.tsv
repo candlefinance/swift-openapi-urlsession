@@ -1,0 +1,6 @@
+kind	ref	oid	date	description
+LOCAL_BRANCH\tfix-candle-1.1.0\t936e5a1b8a26214290e404d58cdf0f294653012d\t\tlocal branch tip
+LOCAL_BRANCH\tfix-candle2-1.1.0\td84402bb1a1f10df55a80d39b72bd94bfc686724\t\tlocal branch tip
+LOCAL_BRANCH\tfix-candle3-1.1.0\t93326ecfb8d53251c26dd299ca469226e21baabb\t\tlocal branch tip
+LOCAL_BRANCH\tmain\tb799051f497883808f3143d323c2475837ce6d2e\t\tlocal branch tip
+REFLOG_ONLY\tdfee8229db637d10e7691414268e5ec190da632c\tdfee8229db637d10e7691414268e5ec190da632c\t\trecoverable reflog commit
